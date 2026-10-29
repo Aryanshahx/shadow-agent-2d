@@ -9,6 +9,8 @@ var hp_lvl: int = 1
 var spd_lvl: int = 1
 var smokes: int = 2
 var darts: int = 3
+var guards_defeated: int = 0
+var objective_claimed: Array = [false, false, false]
 
 const SAVE_FILE = "user://shadow_agent_save.json"
 
@@ -21,7 +23,8 @@ func save_data() -> void:
 		f.store_string(JSON.stringify({
 			"login_id": login_id, "agent_name": agent_name, "suit": suit,
 			"mission": mission, "gems": gems, "hp_lvl": hp_lvl,
-			"spd_lvl": spd_lvl, "smokes": smokes, "darts": darts
+			"spd_lvl": spd_lvl, "smokes": smokes, "darts": darts,
+			"guards_defeated": guards_defeated, "objective_claimed": objective_claimed
 		}))
 
 func load_data() -> void:
@@ -39,3 +42,7 @@ func load_data() -> void:
 		spd_lvl = int(d.get("spd_lvl", 1))
 		smokes = int(d.get("smokes", 2))
 		darts = int(d.get("darts", 3))
+		guards_defeated = maxi(0, int(d.get("guards_defeated", 0)))
+		var saved_claims = d.get("objective_claimed", [false, false, false])
+		if typeof(saved_claims) == TYPE_ARRAY and saved_claims.size() == 3:
+			objective_claimed = saved_claims

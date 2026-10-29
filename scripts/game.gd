@@ -562,6 +562,8 @@ func damage_guard(idx: int) -> void:
 	g["stun"] = 1.0
 	play_sfx("slash_takedown")
 	if g["hp"] <= 0:
+		Global.guards_defeated += 1
+		Global.save_data()
 		var pos = g["node"].global_position
 		for k in range(4 if g["is_boss"] else 2):
 			var gm = Sprite2D.new()
@@ -640,3 +642,8 @@ func finish_mission(won: bool) -> void:
 	b_next.text = ("START MISSION %d ▶" % Global.mission) if won else "RETRY MISSION ▶"
 	b_next.pressed.connect(func(): get_tree().reload_current_scene())
 	vb.add_child(b_next)
+	var home_button = Button.new()
+	home_button.text = "RETURN TO AGENCY"
+	home_button.custom_minimum_size = Vector2(0, 44)
+	home_button.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/home.tscn"))
+	vb.add_child(home_button)

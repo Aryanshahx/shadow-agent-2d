@@ -13,6 +13,7 @@ config_version=5
 config/name="Shadow Agent 2D"
 run/main_scene="res://scenes/title.tscn"
 config/features=PackedStringArray("4.7")
+config/icon="res://assets/selected_icon.png"
 
 [autoload]
 
