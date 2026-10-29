@@ -1,31 +1,36 @@
 extends Control
 func _ready() -> void:
-	var back = TextureRect.new()
-	back.texture = load("res://assets/splash_original.png")
-	back.set_anchors_preset(Control.PRESET_FULL_RECT)
-	back.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	back.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	add_child(back)
-	var shade = ColorRect.new()
-	shade.color = Color(0.01,0.03,0.08,0.17)
-	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
-	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(shade)
-	var logo = Label.new()
-	logo.position = Vector2(24, 100)
-	logo.size = Vector2(784, 110)
-	logo.text = "SHADOW AGENT"
-	logo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	logo.add_theme_font_size_override("font_size", 63)
-	logo.add_theme_color_override("font_color", Color("#8ff7ff"))
-	logo.add_theme_color_override("font_outline_color", Color("#03111f"))
-	logo.add_theme_constant_override("outline_size", 9)
+	var bg = ColorRect.new()
+	bg.color = Color("#071322")
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(bg)
+	var art = TextureRect.new()
+	art.texture = load("res://assets/splash_original.png")
+	art.position = Vector2.ZERO
+	art.size = Vector2(832, 1479)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(art)
+	var logo = TextureRect.new()
+	logo.texture = load("res://assets/shadow_logo.png")
+	logo.position = Vector2(58, 80)
+	logo.size = Vector2(716, 380)
+	logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(logo)
 	var enter = Button.new()
-	enter.position = Vector2(205, 1220)
-	enter.size = Vector2(422, 95)
+	enter.position = Vector2(180, 1215)
+	enter.size = Vector2(472, 106)
 	enter.text = "ENTER THE AGENCY  ▶"
-	enter.add_theme_font_size_override("font_size", 28)
+	enter.add_theme_font_size_override("font_size", 29)
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color("#c27b11")
+	style.border_color = Color("#ffe283")
+	style.set_corner_radius_all(18)
+	style.set_border_width_all(4)
+	enter.add_theme_stylebox_override("normal", style)
 	enter.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/home.tscn"))
 	add_child(enter)
 	var footer = Label.new()
@@ -34,5 +39,5 @@ func _ready() -> void:
 	footer.text = "Hyper Tech Labs"
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	footer.add_theme_font_size_override("font_size", 18)
-	footer.add_theme_color_override("font_color", Color("#d3ecf0"))
+	footer.add_theme_color_override("font_color", Color("#e4f8ff"))
 	add_child(footer)
