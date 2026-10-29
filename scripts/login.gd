@@ -1,6 +1,4 @@
 extends Control
-var id_input: LineEdit
-var name_input: LineEdit
 var cards: Array[Button] = []
 var chosen: String = "hero_h0"
 var names = ["VANGUARD", "VALKYRIE", "GLACIER", "ECHO", "RANGER", "MARSHAL", "MYSTIC", "PHANTOM", "SOLAR", "NOVA"]
@@ -25,8 +23,8 @@ func _ready() -> void:
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
 	var root = VBoxContainer.new()
-	root.position = Vector2(28, 18)
-	root.size = Vector2(776, 540)
+	root.position = Vector2(28, 80)
+	root.size = Vector2(776, 1300)
 	root.add_theme_constant_override("separation", 8)
 	add_child(root)
 	var heading = Label.new()
@@ -34,19 +32,6 @@ func _ready() -> void:
 	heading.add_theme_font_size_override("font_size", 24)
 	heading.add_theme_color_override("font_color", Color("#67ebff"))
 	root.add_child(heading)
-	var fields = HBoxContainer.new()
-	fields.add_theme_constant_override("separation", 10)
-	root.add_child(fields)
-	id_input = LineEdit.new()
-	id_input.placeholder_text = "Agency ID (local profile)"
-	id_input.text = Global.login_id
-	id_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	fields.add_child(id_input)
-	name_input = LineEdit.new()
-	name_input.placeholder_text = "Agent codename"
-	name_input.text = Global.agent_name
-	name_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	fields.add_child(name_input)
 	var info = Label.new()
 	info.text = "Choose a character • New agents unlock as you progress • Mission %d" % Global.mission
 	root.add_child(info)
@@ -73,10 +58,14 @@ func _ready() -> void:
 		button.text = names[i] + ("   • SELECT" if unlocked else "   • MISSION %d" % (1 + (i / 2) * 5))
 		button.alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		var imgpath = "res://assets/sprites/hero_h%d_0.png" % i
-		var img = Image.load_from_file(imgpath)
-		if img:
-			button.icon = ImageTexture.create_from_image(img)
-			button.expand_icon = true
+		# load() reads Godot's imported texture in an exported APK as well as the editor.
+		if ResourceLoader.exists(imgpath):
+			button.icon = load(imgpath)
+		else:
+			var image = Image.load_from_file(ProjectSettings.globalize_path(imgpath))
+			if image:
+				button.icon = ImageTexture.create_from_image(image)
+		button.expand_icon = true
 		var code = "hero_h%d" % i
 		button.pressed.connect(func():
 			chosen = code
@@ -85,7 +74,7 @@ func _ready() -> void:
 		grid.add_child(button)
 		cards.append(button)
 	var deploy = Button.new()
-	deploy.text = "DEPLOY  /  MISSION %d  ▶" % Global.mission
+	deploy.text = "CONFIRM AGENT  ▶"
 	deploy.custom_minimum_size = Vector2(0, 48)
 	deploy.add_theme_stylebox_override("normal", style(Color("#007d91"), Color("#65f2ff")))
 	deploy.pressed.connect(_on_start)
@@ -99,8 +88,6 @@ func _refresh_cards() -> void:
 			cards[i].text = names[i] + ("   • SELECTED" if chosen == "hero_h%d" % i else "   • SELECT")
 
 func _on_start() -> void:
-	if id_input.text.strip_edges() != "": Global.login_id = id_input.text.strip_edges()
-	if name_input.text.strip_edges() != "": Global.agent_name = name_input.text.strip_edges()
 	Global.suit = chosen
 	Global.save_data()
 	get_tree().change_scene_to_file("res://scenes/home.tscn")

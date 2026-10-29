@@ -93,6 +93,10 @@ func play_sfx(s: String) -> void:
 		sfx_players[s].play()
 
 func _ready() -> void:
+	var camera = Camera2D.new()
+	camera.position = Vector2(416, 288)
+	add_child(camera)
+	camera.make_current()
 	setup_sfx()
 	build_level(Global.mission)
 
@@ -231,7 +235,7 @@ func build_hud() -> void:
 	top.position = Vector2(12, 10)
 	cl.add_child(top)
 	hud_label = Label.new()
-	hud_label.add_theme_font_size_override("font_size", 14)
+	hud_label.add_theme_font_size_override("font_size", 11)
 	top.add_child(hud_label)
 
 	status_label = Label.new()
@@ -242,15 +246,15 @@ func build_hud() -> void:
 
 	var btn_smoke = Button.new()
 	btn_smoke.text = "SMOKE (Space)"
-	btn_smoke.position = Vector2(560, 520)
-	btn_smoke.custom_minimum_size = Vector2(120, 42)
+	btn_smoke.position = Vector2(130, 1335)
+	btn_smoke.custom_minimum_size = Vector2(260, 85)
 	btn_smoke.pressed.connect(use_smoke)
 	cl.add_child(btn_smoke)
 
 	var btn_dart = Button.new()
 	btn_dart.text = "SHURIKEN (F)"
-	btn_dart.position = Vector2(692, 520)
-	btn_dart.custom_minimum_size = Vector2(124, 42)
+	btn_dart.position = Vector2(442, 1335)
+	btn_dart.custom_minimum_size = Vector2(260, 85)
 	btn_dart.pressed.connect(fire_dart)
 	cl.add_child(btn_dart)
 
@@ -585,7 +589,7 @@ func finish_mission(won: bool) -> void:
 	add_child(cl)
 	var panel = PanelContainer.new()
 	panel.custom_minimum_size = Vector2(420, 320)
-	panel.position = Vector2(206, 128)
+	panel.position = Vector2(206, 579)
 	cl.add_child(panel)
 
 	var vb = VBoxContainer.new()
