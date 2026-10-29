@@ -1,0 +1,69 @@
+name: Android debug APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK build tools
+        run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.1"
+      - name: Download Godot 4.7.2 and export templates
+        shell: bash
+        run: |
+          set -euxo pipefail
+          BASE=https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable
+          wget -q "$BASE/Godot_v4.7.2-stable_linux.x86_64.zip" -O /tmp/godot.zip
+          unzip -q /tmp/godot.zip -d /tmp/godot-bin
+          chmod +x /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          wget -q "$BASE/Godot_v4.7.2-stable_export_templates.tpz" -O /tmp/templates.zip
+          unzip -q /tmp/templates.zip -d /tmp/godot-tpl
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          cp -a /tmp/godot-tpl/templates/. "$HOME/.local/share/godot/export_templates/4.7.2.stable/"
+      - name: Configure Android and create test signing key
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p "$HOME/.config/godot" "$HOME/.android"
+          keytool -genkeypair -keystore "$HOME/.android/shadow-debug.keystore" -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US"
+          cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/android_sdk_path = "$ANDROID_HOME"
+          export/android/java_sdk_path = "$JAVA_HOME"
+          export/android/debug_keystore = "$HOME/.android/shadow-debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          EOF
+          cp "$HOME/.config/godot/editor_settings-4.tres" "$HOME/.config/godot/editor_settings-4.7.tres"
+      - name: Import project and export APK
+        shell: bash
+        env:
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ runner.temp }}/shadow-debug.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+        run: |
+          set -euxo pipefail
+          cp "$HOME/.android/shadow-debug.keystore" "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
+          GODOT=/tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          "$GODOT" --headless --path . --editor --import
+          mkdir -p apk
+          "$GODOT" --headless --path . --export-debug "Android Debug" apk/ShadowAgent2D-debug.apk
+          test -s apk/ShadowAgent2D-debug.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ShadowAgent2D-debug
+          path: apk/ShadowAgent2D-debug.apk
+          if-no-files-found: error
