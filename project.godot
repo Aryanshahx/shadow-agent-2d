@@ -25,5 +25,5 @@ window/size/viewport_height=576
 window/stretch/mode="canvas_items"
 
 [rendering]
-
+textures/vram_compression/import_etc2_astc=true
 renderer/rendering_method="mobile"
